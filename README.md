@@ -1,5 +1,6 @@
 # Parsel Selector API
 An API for selecting part of a document on the web based on a path to the content. 
+You can see a hosted version of the POC here: https://parsel-selector-api.herokuapp.com/docs
 
 ---
 ## Inspiration
@@ -30,4 +31,4 @@ This API serves 2 purposes.
 
 ---
 ## Whats Next?
-This project is under development still, but the code as it stands is a working POC. Future plans include including the files needed to host on Heroku, hosting a copy on heroku for people to use, and creating a React front end as a GUI for this project.
+This project is under development still, but the code as it stands is a working POC. Future plans include lots more documentation, tests perhaps, and a react frontend so this is useable from a GUI.
