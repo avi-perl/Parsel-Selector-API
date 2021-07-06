@@ -6,7 +6,7 @@ An API for selecting part of a document on the web based on a path to the conten
 
 ## Inspiration
 
-The Python [Scrapy](https://scrapy.org/) project, a framework for web scraping, the [Parsel](https://pypi.org/project/parsel/) library is used to parse content scraped from the internet to get at the data the scraper wants. Getting page content looks something like this:
+In the [Scrapy](https://scrapy.org/) python project, a framework for web scraping, the [Parsel](https://pypi.org/project/parsel/) library is used to parse content scraped from the internet to get at the data the scraper wants. Getting page content looks something like this:
 ```python
 >>> fetch("https://old.reddit.com/")
 >>> response.xpath('//title/text()').get()
@@ -69,6 +69,7 @@ Pull requests are welcome!
 - [ ] Add examples for each of the path types.
 - [ ] Add tests.
 - [ ] Create a front-end as a GUI for this tool.
+- [ ] Add path parsing errors to the response.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
