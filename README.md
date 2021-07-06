@@ -64,8 +64,11 @@ print(r.json())
 ## Contributing
 Pull requests are welcome!
 
+#### TODO:
+- [ ] Add request cache so that the same URL is not called frequently.
+- [ ] Add examples for each of the path types.
+- [ ] Add tests.
+- [ ] Create a front-end as a GUI for this tool.
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
-
-## Whats Next?
-This project is under development still, but the code as it stands is a working POC. Future plans include lots more documentation, tests perhaps, and a react frontend so this is useable from a GUI.
