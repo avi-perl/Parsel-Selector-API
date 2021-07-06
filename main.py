@@ -23,8 +23,8 @@ class PathTypes(str, Enum):
 class ReturnStyles(str, Enum):
     """Valid options for a SelectorItem path."""
 
-    DATA_ONLY = "DATA_ONLY"
     BASIC = "BASIC"
+    DATA_ONLY = "DATA_ONLY"
     VERBOSE = "VERBOSE"
 
     @classmethod
@@ -58,7 +58,7 @@ class SelectorItem(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "url": "https://parsel-selector-api.herokuapp.com/examples/html",
+                "url": "http://parsel.aviperl.me/examples/html",
                 "path": "/html/body/h1/text()",
                 "path_type": "XPATH",
                 "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
@@ -92,20 +92,8 @@ class SelectorData(BaseModel):
 class DocumentExamples:
     """Example data for example pages"""
 
-    HTML = """
-    <html>
-        <head>
-            <title>Some HTML in here</title>
-        </head>
-        <body>
-            <h1>Look ma! HTML!</h1>
-        </body>
-    </html>
-    """.replace(
-        " ", ""
-    ).replace(
-        "\n", ""
-    )
+    _html_h1_content = "You scraped me 🤕"
+    HTML = f"<html><head><title>Title of the HTML example.</title></head><body><h1>{_html_h1_content}</h1></body></html>"
 
 
 def get_data_response_examples():
@@ -114,7 +102,7 @@ def get_data_response_examples():
         "selector_item": SelectorItem.Config.schema_extra["example"],
         "status_code": 200,
         "status_msg": ["OK", "Request fulfilled, document follows"],
-        "path_data": "Lookma!HTML!",
+        "path_data": DocumentExamples._html_h1_content,
         "raw_data": DocumentExamples.HTML,
     }
     data_responses = {
@@ -123,13 +111,13 @@ def get_data_response_examples():
             "content": {
                 "application/json": {
                     "examples": {
-                        "DATA_ONLY": {
-                            "summary": "DATA_ONLY",
-                            "value": verbose_example.get("path_data", "string"),
-                        },
                         "BASIC": {
                             "summary": "BASIC",
                             "value": ReturnStyles.make_basic(verbose_example.copy()),
+                        },
+                        "DATA_ONLY": {
+                            "summary": "DATA_ONLY",
+                            "value": verbose_example.get("path_data", "string"),
                         },
                         "VERBOSE": {
                             "summary": "VERBOSE",
