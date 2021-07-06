@@ -97,3 +97,8 @@ async def get_data(selector_item: SelectorItem = Depends()):
 @app.get("/user_agents")
 async def get_user_agents():
     return user_agents
+
+@app.get("/wake")
+async def get_user_agents():
+    """An endpoint to wake the API up when the server is asleep on services like Heroku"""
+    return True
