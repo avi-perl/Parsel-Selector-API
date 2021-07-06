@@ -90,6 +90,8 @@ class SelectorData(BaseModel):
 
 
 class DocumentExamples:
+    """Example data for example pages"""
+
     HTML = """
     <html>
         <head>
@@ -161,12 +163,11 @@ async def get_data(selector_item: SelectorItem = Depends()):
 @app.get("/examples/html", response_class=HTMLResponse)
 async def return_html_example():
     """Returns a basic HTML response for testing."""
-    print(get_data_response_examples())
     return HTMLResponse(content=DocumentExamples.HTML, status_code=200)
 
 
 @app.get("/user_agents")
-async def get_user_agents():
+async def get_user_agents_list():
     """Returns a list of possible User-Agent examples that can be used. Useful for populating a UI that relies on this API."""
     return user_agents
 
