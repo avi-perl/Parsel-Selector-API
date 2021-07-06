@@ -39,6 +39,7 @@ python-dotenv==0.18.0
 python-multipart==0.0.5
 PyYAML==5.4.1
 regex==2021.7.1
+requests==2.25.1
 rfc3986==1.5.0
 Rx==1.6.1
 six==1.16.0
