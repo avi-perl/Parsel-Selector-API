@@ -1,8 +1,8 @@
 import json
+import asyncio
 
 import dpath.util
 import httpx
-import asyncio
 import xmltodict
 from parsel import Selector
 
@@ -82,10 +82,9 @@ class ParselSelectorRetriever:
     request = None
     path_data = None
     raw_path_data = None
-    __url_response = None
     scrape_log = None
-    error_code = None
-    error_msg = None
+    error_code = 0
+    error_msg = "Success"
     content_reformatted = False
 
     def __init__(
@@ -155,18 +154,17 @@ class ParselSelectorRetriever:
             elif self.path_type == self.REGEX:
                 data = selector.re(self.path)
             elif self.path_type == self.JSON:
-                json_dict = json.loads(
-                    self.full_response
+                json_dict = json.loads( 
+                    self.raw_data
                 )  # Convert JSON to python dictionary
                 data = dpath.util.get(
                     json_dict, self.path
                 )  # Get the content of the dictionary based on the path provided
             elif self.path_type == self.XML:
                 # Convert the xml into a valid python dictionary so we can parse it the same way we parse JSON
+                print(self.raw_data)
                 try:
-                    xml_dict = json.loads(
-                        json.dumps(xmltodict.parse(self.full_response))
-                    )
+                    xml_dict = xmltodict.parse(self.raw_data)
                 except Exception:
                     self.error_code = 3
                     self.error_msg = (
@@ -176,7 +174,7 @@ class ParselSelectorRetriever:
                 data = dpath.util.get(xml_dict, self.path)
         except KeyError:
             self.error_code = 1
-            self.error_msg = f"Path error, please enter a valid Path value for the type '{self.path_type_name}'"
+            self.error_msg = f"Path error, please enter a valid Path value for the type '{self.path_type}'"
         except Exception as e:
             self.error_code = 2
             self.error_msg = (

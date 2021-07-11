@@ -1,5 +1,6 @@
-from typing import Optional
+from typing import Optional, Dict
 from enum import Enum, IntEnum
+import json
 
 from fastapi import FastAPI, Depends
 from fastapi.responses import HTMLResponse
@@ -69,8 +70,8 @@ class SelectorItem(BaseModel):
 
 class SelectorData(BaseModel):
     selector_item: SelectorItem
-    status_code: int
-    status_msg: tuple
+    request_error: Dict[int, list]
+    parser_error: Dict[int, str]
     path_data: str = None
     raw_data: str = None
 
@@ -82,8 +83,12 @@ class SelectorData(BaseModel):
     ):
         return cls(
             selector_item=selector_item,
-            status_code=retriever.status_code,
-            status_msg=retriever.status_msg,
+            request_error={retriever.status_code: retriever.status_msg},
+            parser_error={retriever.error_code: retriever.error_msg},
+            request_status_code=retriever.status_code,
+            request_status_msg=retriever.status_msg,
+            parser_error_code=retriever.error_code,
+            parser_error_message=retriever.error_msg,
             path_data=retriever.path_data,
             raw_data=retriever.raw_data,
         )
@@ -92,8 +97,10 @@ class SelectorData(BaseModel):
 class DocumentExamples:
     """Example data for example pages"""
 
-    _html_h1_content = "You scraped me 🤕"
-    HTML = f"<html><head><title>Title of the HTML example.</title></head><body><h1>{_html_h1_content}</h1></body></html>"
+    _content = "You scraped me 🤕"
+    HTML = f"<html><head><title>Title of the HTML example.</title></head><body><h1>{_content}</h1></body></html>"
+    JSON = json.dumps({"primary_content": _content, "sub_content": ["Some other content."]})
+    XML = f'<?xml version="1.0" encoding="UTF-8"?><note><to>Guest</to><from>Avi</from><heading>{_content}</heading><body>Ouch!</body></note>'
 
 
 def get_data_response_examples():
@@ -102,7 +109,7 @@ def get_data_response_examples():
         "selector_item": SelectorItem.Config.schema_extra["example"],
         "status_code": 200,
         "status_msg": ["OK", "Request fulfilled, document follows"],
-        "path_data": DocumentExamples._html_h1_content,
+        "path_data": DocumentExamples._content,
         "raw_data": DocumentExamples.HTML,
     }
     data_responses = {
@@ -152,6 +159,18 @@ async def get_data(selector_item: SelectorItem = Depends()):
 async def return_html_example():
     """Returns a basic HTML response for testing."""
     return HTMLResponse(content=DocumentExamples.HTML, status_code=200)
+
+
+@app.get("/examples/json", response_class=HTMLResponse)
+async def return_html_example():
+    """Returns a basic JSON response for testing."""
+    return HTMLResponse(content=DocumentExamples.JSON, status_code=200)
+
+
+@app.get("/examples/xml", response_class=HTMLResponse)
+async def return_html_example():
+    """Returns a basic JSON response for testing."""
+    return HTMLResponse(content=DocumentExamples.XML, status_code=200)
 
 
 @app.get("/user_agents")

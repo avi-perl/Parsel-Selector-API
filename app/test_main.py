@@ -1,5 +1,9 @@
+import json
+
 from fastapi.testclient import TestClient
 from parsel import Selector
+import dpath.util
+import xmltodict
 
 from .main import app
 
@@ -26,3 +30,18 @@ def test_example_html():
     # Verify that elements needed for further tests and documentation are returned with the path we expect.
     selector = Selector(text=data)
     assert selector.xpath("/html/body/h1").get() is not None
+
+
+def test_example_json():
+    response = client.get("/examples/json")
+    data = response.text
+    # Verify that elements needed for further tests and documentation are returned with the path we expect.
+    json_dict = json.loads(data)
+    assert dpath.util.get(json_dict, "/primary_content") is not None
+
+
+def test_example_xml():
+    response = client.get("/examples/xml")
+    data = response.text
+    # Verify that elements needed for further tests and documentation are returned with the path we expect.
+    assert dpath.util.get(xmltodict.parse(data), "/note/heading") is not None
