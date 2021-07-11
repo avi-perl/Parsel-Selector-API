@@ -63,11 +63,11 @@ print(r.json())
 Select the links below for documentation on how to structure your path for each type based on the library's used to power it.
 | Type    | Library Used | Notes |
 | ------- | ------------ | ----- |
-| XPATH   | [Parsel]([link](https://parsel.readthedocs.io/en/latest/usage.html#usage)) | Currently only supporting the `.get()` method.
-| CSS     | [Parsel]([link](https://parsel.readthedocs.io/en/latest/usage.html#usage)) | Currently only supporting the `.get()` method.
-| REGEX   | [Parsel]([link](https://parsel.readthedocs.io/en/latest/usage.html#usage)) | 
-| JSON    | [dpath](https://pypi.org/project/dpath/) | 
-| XML     | XML converted to a dictionary by [xmltodict](https://pypi.org/project/xmltodict/), then parsed as JSON is with [dpath](https://pypi.org/project/dpath/) |
+| XPATH   | [Parsel](https://parsel.readthedocs.io/en/latest/usage.html#usage) | Currently only supporting the `.get()` method. |
+| CSS     | [Parsel](https://parsel.readthedocs.io/en/latest/usage.html#usage) | Currently only supporting the `.get()` method. |
+| REGEX   | [Parsel](https://parsel.readthedocs.io/en/latest/usage.html#usage) | 
+| JSON    | [dpath](https://pypi.org/project/dpath/) | |
+| XML     | XML converted to a dictionary by [xmltodict](https://pypi.org/project/xmltodict/), then parsed as JSON is with [dpath](https://pypi.org/project/dpath/) | |
 
 ## Contributing
 This project has been mostly about learning, your pull requests and comments would be super appreciated! 
