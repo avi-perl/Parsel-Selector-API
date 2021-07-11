@@ -60,7 +60,7 @@ urllib3==1.26.6
 uvicorn==0.13.4
 w3lib==1.22.0
 watchgod==0.7
-websockets>=9.1
+websockets==9.1
 xmltodict==0.12.0
 zope.event==4.5.0
 zope.interface==5.4.0
