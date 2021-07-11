@@ -36,7 +36,7 @@ class ReturnStyles(str, Enum):
     def make_basic(
         cls,
         sector_data,
-        basic_keys=["selector_item", "request_error", "path_data"],
+        basic_keys=["request_error", "path_data"],
     ):
         """Remove the keys that we do not want in a 'basic' formatted version of a SelectorData model"""
         keys = (
