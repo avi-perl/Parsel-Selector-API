@@ -40,7 +40,7 @@ cd Parsel-Selector-API
 pip install -r requirements.txt
 
 # Run the app
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 ## Usage 
@@ -48,28 +48,35 @@ Additional examples can be found in the examples folder.
 ```python
 import requests
 
-# Example using BASIC return style
+# Example using the default BASIC return style
 params = {
     "url": "https://parsel-selector-api.herokuapp.com/examples/html",
-    "path": "/html/body/h1/text()",
-    "path_type": "XPATH",
-    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
-    "return_style": "BASIC",
+    "path": "/html/body/div/span[3]/text()",
+    "path_type": "XPATH",=
 }
 
 r = requests.get("https://parsel-selector-api.herokuapp.com/", params=params)
 print(r.json())
 ```
 
-## Contributing
-Pull requests are welcome!
+### Parsing Content
+Select the links below for documentation on how to structure your path for each type based on the library's used to power it.
+| Type    | Library Used | Notes |
+| ------- | ------------ | ----- |
+| XPATH   | [Parsel]([link](https://parsel.readthedocs.io/en/latest/usage.html#usage)) | Currently only supporting the `.get()` method.
+| CSS     | [Parsel]([link](https://parsel.readthedocs.io/en/latest/usage.html#usage)) | Currently only supporting the `.get()` method.
+| REGEX   | [Parsel]([link](https://parsel.readthedocs.io/en/latest/usage.html#usage)) | 
+| JSON    | [dpath](https://pypi.org/project/dpath/) | 
+| XML     | XML converted to a dictionary by [xmltodict](https://pypi.org/project/xmltodict/), then parsed as JSON is with [dpath](https://pypi.org/project/dpath/) |
 
-#### TODO:
+## Contributing
+This project has been mostly about learning, your pull requests and comments would be super appreciated! 
+
+## TODO:
 - [ ] Add request cache so that the same URL is not called frequently.
-- [ ] Add examples for each of the path types.
-- [ ] Add tests.
+- [ ] Add more tests on basic functionality.
 - [ ] Create a front-end as a GUI for this tool.
-- [ ] Add path parsing errors to the response.
+- [ ] Add path parsing errors to the response for types other than XML.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
