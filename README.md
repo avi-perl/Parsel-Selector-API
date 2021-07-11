@@ -1,5 +1,5 @@
 # Parsel Selector API
-[![Python package](https://github.com/avrohom-perl/Parsel-Selector-API/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/avrohom-perl/Parsel-Selector-API/actions/workflows/python-app.yml) [![CodeQL](https://github.com/avrohom-perl/Parsel-Selector-API/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/avrohom-perl/Parsel-Selector-API/actions/workflows/codeql-analysis.yml)
+[![Python application](https://github.com/avrohom-perl/Parsel-Selector-API/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/avrohom-perl/Parsel-Selector-API/actions/workflows/python-app.yml) [![CodeQL](https://github.com/avrohom-perl/Parsel-Selector-API/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/avrohom-perl/Parsel-Selector-API/actions/workflows/codeql-analysis.yml)
 
 An API for selecting part of a document on the web based on a path to the content.
 
