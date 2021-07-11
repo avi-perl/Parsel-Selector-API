@@ -237,7 +237,7 @@ class ParselSelectorRetriever:
             self.error_msg = (
                 f"There was an error with your Path and Path Type combo: {e}"
             )
-        return data
+        return data.strip()
 
     @classmethod
     def from_selector_item(cls, selector_item):
