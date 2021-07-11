@@ -71,11 +71,18 @@ class SelectorItem(BaseModel):
             }
         }
 
+class RequestError(BaseModel):
+    code: int
+    msg: list
+
+class ParserError(BaseModel):
+    code: int
+    msg: str
 
 class SelectorData(BaseModel):
     selector_item: SelectorItem
-    request_error: Dict[int, list]
-    parser_error: Dict[int, str]
+    request_error: RequestError
+    parser_error: ParserError
     path_data: str = None
     raw_data: str = None
 
@@ -87,12 +94,8 @@ class SelectorData(BaseModel):
     ):
         return cls(
             selector_item=selector_item,
-            request_error={retriever.status_code: retriever.status_msg},
-            parser_error={retriever.error_code: retriever.error_msg},
-            request_status_code=retriever.status_code,
-            request_status_msg=retriever.status_msg,
-            parser_error_code=retriever.error_code,
-            parser_error_message=retriever.error_msg,
+            request_error=RequestError(code=retriever.status_code, msg=retriever.status_msg),
+            parser_error=ParserError(code=retriever.error_code, msg=retriever.error_msg),
             path_data=retriever.path_data,
             raw_data=retriever.raw_data,
         )
