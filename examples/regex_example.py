@@ -2,8 +2,8 @@ import requests
 
 params = {
     "url": "https://parsel-selector-api.herokuapp.com/examples/html",
-    "path": "/html/body/h1/text()",
-    "path_type": "XPATH",
+    "path": "title>(.*)<\/title",
+    "path_type": "REGEX",
 }
 
 # Example using BASIC return style
@@ -20,4 +20,3 @@ print(r.text, "\n")
 params["return_style"] = "VERBOSE"
 r = requests.get("https://parsel-selector-api.herokuapp.com/", params=params)
 print(r.json(), "\n")
-
