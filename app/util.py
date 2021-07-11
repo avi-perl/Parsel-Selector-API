@@ -72,6 +72,63 @@ user_agents = [
 ]
 
 
+class DocumentExamples:
+    """Example data for example pages"""
+
+    TO = "Guest"
+    FROM = "Avi Perl"
+    SUBJECT = "You scraped me 🤕"
+    BODY = "Thats painful, ouch!"
+
+    HTML = f'<html><head><title>HTML Example Note</title></head><body><div class="note"><span><strong>To:</strong> {TO}</span><br><span><strong>From:</strong> {FROM}</span><br><span><strong>Subject:</strong> {SUBJECT}</span><hr><p>{BODY}</p></div></body></html>'
+    JSON = {
+        "note": {
+            "to": TO,
+            "from": FROM,
+            "subject": SUBJECT,
+            "body": BODY,
+        }
+    }
+    XML = f'<?xml version="1.0" encoding="UTF-8"?><note><to>{TO}</to><from>{FROM}</from><subject>{SUBJECT}</subject><body>{BODY}</body></note>'
+
+
+def get_data_response_examples():
+    """Generates the example responses for the docs while trying to be as dynamic as possible."""
+    from .main import SelectorItem, ReturnStyles
+
+    verbose_example = {
+        "selector_item": SelectorItem.Config.schema_extra["example"],
+        "request_error": {"200": ["OK", "Request fulfilled, document follows"]},
+        "parser_error": {"0": "Success"},
+        "path_data": DocumentExamples.SUBJECT,
+        "raw_data": DocumentExamples.HTML,
+    }
+    data_responses = {
+        200: {
+            "description": "Success",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "BASIC": {
+                            "summary": "BASIC",
+                            "value": ReturnStyles.make_basic(verbose_example.copy()),
+                        },
+                        "DATA_ONLY": {
+                            "summary": "DATA_ONLY",
+                            "value": verbose_example.get("path_data", "string"),
+                        },
+                        "VERBOSE": {
+                            "summary": "VERBOSE",
+                            "value": verbose_example,
+                        },
+                    }
+                }
+            },
+        },
+    }
+    return data_responses
+
+
 class ParselSelectorRetriever:
     XPATH = "XPATH"
     CSS = "CSS"
@@ -130,7 +187,7 @@ class ParselSelectorRetriever:
     @property
     def raw_data(self):
         """Returns the raw data that we got back from the request"""
-        return self.request.content.decode('utf-8')
+        return self.request.content.decode("utf-8")
 
     @property
     def status_code(self):
@@ -154,7 +211,7 @@ class ParselSelectorRetriever:
             elif self.path_type == self.REGEX:
                 data = selector.re(self.path)
             elif self.path_type == self.JSON:
-                json_dict = json.loads( 
+                json_dict = json.loads(
                     self.raw_data
                 )  # Convert JSON to python dictionary
                 data = dpath.util.get(
@@ -190,4 +247,3 @@ class ParselSelectorRetriever:
             path_type=selector_item.path_type,
             user_agent=selector_item.user_agent,
         )
-

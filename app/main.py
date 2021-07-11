@@ -1,12 +1,16 @@
-from typing import Optional, Dict
-from enum import Enum, IntEnum
-import json
+from typing import Dict
+from enum import Enum
 
 from fastapi import FastAPI, Depends
 from fastapi.responses import HTMLResponse, Response, ORJSONResponse
 from pydantic import BaseModel, AnyUrl
 
-from .util import ParselSelectorRetriever, user_agents
+from .util import (
+    ParselSelectorRetriever,
+    user_agents,
+    get_data_response_examples,
+    DocumentExamples,
+)
 
 app = FastAPI()
 
@@ -92,68 +96,6 @@ class SelectorData(BaseModel):
             path_data=retriever.path_data,
             raw_data=retriever.raw_data,
         )
-
-
-class DocumentExamples:
-    """Example data for example pages"""
-
-    TO = "Guest"
-    FROM = "Avi Perl"
-    SUBJECT = "You scraped me 🤕"
-    BODY = "Thats painful, ouch!"
-    
-    HTML = f'<html><head><title>HTML Example Note</title></head><body><div class="note"><span><strong>To:</strong> {TO}</span><br><span><strong>From:</strong> {FROM}</span><br><span><strong>Subject:</strong> {SUBJECT}</span><hr><p>{BODY}</p></div></body></html>'
-    JSON = {
-        "note": {
-            "to": TO,
-            "from": FROM,
-            "subject": SUBJECT,
-            "body": BODY,
-        }
-    }
-    XML = f'<?xml version="1.0" encoding="UTF-8"?><note><to>{TO}</to><from>{FROM}</from><subject>{SUBJECT}</subject><body>{BODY}</body></note>'
-
-
-def get_data_response_examples():
-    """Generates the example responses for the docs while trying to be as dynamic as possible."""
-    verbose_example = {
-        "selector_item": SelectorItem.Config.schema_extra["example"],
-        "request_error": {
-            "200": [
-            "OK",
-            "Request fulfilled, document follows"
-            ]
-        },
-        "parser_error": {
-            "0": "Success"
-        },
-        "path_data": DocumentExamples.SUBJECT,
-        "raw_data": DocumentExamples.HTML,
-    }
-    data_responses = {
-        200: {
-            "description": "Success",
-            "content": {
-                "application/json": {
-                    "examples": {
-                        "BASIC": {
-                            "summary": "BASIC",
-                            "value": ReturnStyles.make_basic(verbose_example.copy()),
-                        },
-                        "DATA_ONLY": {
-                            "summary": "DATA_ONLY",
-                            "value": verbose_example.get("path_data", "string"),
-                        },
-                        "VERBOSE": {
-                            "summary": "VERBOSE",
-                            "value": verbose_example,
-                        },
-                    }
-                }
-            },
-        },
-    }
-    return data_responses
 
 
 @app.get("/", responses=get_data_response_examples())
