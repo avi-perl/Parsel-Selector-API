@@ -1,6 +1,8 @@
 # Parsel Selector API
 An API for selecting part of a document on the web based on a path to the content.
 
+[![Python package](https://github.com/avrohom-perl/Parsel-Selector-API/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/avrohom-perl/Parsel-Selector-API/actions/workflows/python-app.yml)
+
 - Swagger Documentation: https://parsel-selector-api.herokuapp.com/docs
 - ReDoc Documentation: https://parsel-selector-api.herokuapp.com/redoc
 
