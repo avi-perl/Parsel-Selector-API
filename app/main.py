@@ -5,7 +5,7 @@ from fastapi import FastAPI, Depends
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, AnyUrl
 
-from util import ParselSelectorRetriever, user_agents
+from .util import ParselSelectorRetriever, user_agents
 
 app = FastAPI()
 
