@@ -6,6 +6,13 @@ import httpx
 import xmltodict
 from parsel import Selector
 
+XPATH = "XPATH"
+CSS = "CSS"
+REGEX = "REGEX"
+JSON = "JSON"
+XML = "XML"
+
+
 http_response_codes = {
     100: ("Continue", "Request received, please continue"),
     101: ("Switching Protocols", "Switching to new protocol; obey Upgrade header"),
@@ -70,26 +77,7 @@ user_agents = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0",
 ]
-
-
-class DocumentExamples:
-    """Example data for example pages"""
-
-    TO = "Guest"
-    FROM = "Avi Perl"
-    SUBJECT = "You scraped me 🤕"
-    BODY = "Thats painful, ouch!"
-
-    HTML = f'<html><head><title>HTML Example Note</title></head><body><div class="note"><span><strong>To:</strong> {TO}</span><br><span><strong>From:</strong> {FROM}</span><br><span><strong>Subject:</strong> {SUBJECT}</span><hr><p>{BODY}</p></div></body></html>'
-    JSON = {
-        "note": {
-            "to": TO,
-            "from": FROM,
-            "subject": SUBJECT,
-            "body": BODY,
-        }
-    }
-    XML = f'<?xml version="1.0" encoding="UTF-8"?><note><to>{TO}</to><from>{FROM}</from><subject>{SUBJECT}</subject><body>{BODY}</body></note>'
+default_user_agent = user_agents[0]
 
 
 def get_data_response_examples():
@@ -129,7 +117,7 @@ def get_data_response_examples():
     return data_responses
 
 
-class ParselSelectorRetriever:
+class SelectorRetriever:
     XPATH = "XPATH"
     CSS = "CSS"
     REGEX = "REGEX"
@@ -247,3 +235,45 @@ class ParselSelectorRetriever:
             path_type=selector_item.path_type,
             user_agent=selector_item.user_agent,
         )
+
+
+class ParselRetriever(SelectorRetriever):
+    def _get_path_data(self):
+        """Gets the path content based on the type of path that was requested"""
+        data = None
+        try:
+            selector = Selector(text=self.raw_data)
+            if self.path_type == self.XPATH:
+                data = selector.xpath(self.path).get()
+            elif self.path_type == self.CSS:
+                data = selector.css(self.path).get()
+            elif self.path_type == self.REGEX:
+                data = selector.re(self.path)
+            elif self.path_type == self.JSON:
+                json_dict = json.loads(
+                    self.raw_data
+                )  # Convert JSON to python dictionary
+                data = dpath.util.get(
+                    json_dict, self.path
+                )  # Get the content of the dictionary based on the path provided
+            elif self.path_type == self.XML:
+                # Convert the xml into a valid python dictionary so we can parse it the same way we parse JSON
+                print(self.raw_data)
+                try:
+                    xml_dict = xmltodict.parse(self.raw_data)
+                except Exception:
+                    self.error_code = 3
+                    self.error_msg = (
+                        "Error parsing XML data. Are you sure the data is valid XML?"
+                    )
+                    return data
+                data = dpath.util.get(xml_dict, self.path)
+        except KeyError:
+            self.error_code = 1
+            self.error_msg = f"Path error, please enter a valid Path value for the type '{self.path_type}'"
+        except Exception as e:
+            self.error_code = 2
+            self.error_msg = (
+                f"There was an error with your Path and Path Type combo: {e}"
+            )
+        return data.strip() if type(data) == str else data
