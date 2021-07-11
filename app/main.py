@@ -113,7 +113,7 @@ async def get_data(selector_item: SelectorItem = Depends()):
     if selector_item.return_style == ReturnStyles.BASIC:
         return ReturnStyles.make_basic(data)
     elif selector_item.return_style == ReturnStyles.DATA_ONLY:
-        return data.path_data
+        return HTMLResponse(data.path_data)
     else:
         return data
 
