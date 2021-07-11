@@ -2,7 +2,7 @@ import requests
 
 params = {
     "url": "https://parsel-selector-api.herokuapp.com/examples/html",
-    "path": "/html/body/h1/text()",
+    "path": "/html/body/div/span[3]/text()",
     "path_type": "XPATH",
 }
 

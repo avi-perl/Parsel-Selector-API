@@ -2,7 +2,7 @@ import requests
 
 params = {
     "url": "https://parsel-selector-api.herokuapp.com/examples/xml",
-    "path": "/note/heading",
+    "path": "/note/subject",
     "path_type": "XML",
 }
 

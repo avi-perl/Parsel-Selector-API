@@ -29,7 +29,23 @@ def test_example_html():
     data = response.text
     # Verify that elements needed for further tests and documentation are returned with the path we expect.
     selector = Selector(text=data)
-    assert selector.xpath("/html/body/h1").get() is not None
+    assert selector.xpath("/html/body/div/span[3]/text()").get() is not None
+
+
+def test_example_css():
+    response = client.get("/examples/html")
+    data = response.text
+    # Verify that elements needed for further tests and documentation are returned with the path we expect.
+    selector = Selector(text=data)
+    assert selector.css("body > div > span:nth-child(5)").get() is not None
+
+
+def test_example_regex():
+    response = client.get("/examples/html")
+    data = response.text
+    # Verify that elements needed for further tests and documentation are returned with the path we expect.
+    selector = Selector(text=data)
+    assert selector.re("<span><strong>.*:<\/strong> (.*)<\/span>") is not None
 
 
 def test_example_json():
@@ -37,11 +53,11 @@ def test_example_json():
     data = response.text
     # Verify that elements needed for further tests and documentation are returned with the path we expect.
     json_dict = json.loads(data)
-    assert dpath.util.get(json_dict, "/primary_content") is not None
+    assert dpath.util.get(json_dict, "/note/subject") is not None
 
 
 def test_example_xml():
     response = client.get("/examples/xml")
     data = response.text
     # Verify that elements needed for further tests and documentation are returned with the path we expect.
-    assert dpath.util.get(xmltodict.parse(data), "/note/heading") is not None
+    assert dpath.util.get(xmltodict.parse(data), "/note/subject") is not None

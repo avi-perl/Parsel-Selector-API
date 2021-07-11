@@ -2,7 +2,7 @@ import requests
 
 params = {
     "url": "https://parsel-selector-api.herokuapp.com/examples/html",
-    "path": "title>(.*)<\/title",
+    "path": "<span><strong>.*:<\/strong> (.*)<\/span>",
     "path_type": "REGEX",
 }
 

@@ -2,7 +2,7 @@ import requests
 
 params = {
     "url": "https://parsel-selector-api.herokuapp.com/examples/html",
-    "path": "body > h1",
+    "path": "body > div > span:nth-child(5)",
     "path_type": "CSS",
 }
 

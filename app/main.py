@@ -3,7 +3,7 @@ from enum import Enum, IntEnum
 import json
 
 from fastapi import FastAPI, Depends
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response, ORJSONResponse
 from pydantic import BaseModel, AnyUrl
 
 from .util import ParselSelectorRetriever, user_agents
@@ -32,7 +32,7 @@ class ReturnStyles(str, Enum):
     def make_basic(
         cls,
         sector_data,
-        basic_keys=["selector_item", "status_code", "status_msg", "path_data"],
+        basic_keys=["selector_item", "request_error", "path_data"],
     ):
         """Remove the keys that we do not want in a 'basic' formatted version of a SelectorData model"""
         keys = (
@@ -97,19 +97,37 @@ class SelectorData(BaseModel):
 class DocumentExamples:
     """Example data for example pages"""
 
-    _content = "You scraped me 🤕"
-    HTML = f"<html><head><title>Title of the HTML example.</title></head><body><h1>{_content}</h1></body></html>"
-    JSON = json.dumps({"primary_content": _content, "sub_content": ["Some other content."]})
-    XML = f'<?xml version="1.0" encoding="UTF-8"?><note><to>Guest</to><from>Avi</from><heading>{_content}</heading><body>Ouch!</body></note>'
+    TO = "Guest"
+    FROM = "Avi Perl"
+    SUBJECT = "You scraped me 🤕"
+    BODY = "Thats painful, ouch!"
+    
+    HTML = f'<html><head><title>HTML Example Note</title></head><body><div class="note"><span><strong>To:</strong> {TO}</span><br><span><strong>From:</strong> {FROM}</span><br><span><strong>Subject:</strong> {SUBJECT}</span><hr><p>{BODY}</p></div></body></html>'
+    JSON = {
+        "note": {
+            "to": TO,
+            "from": FROM,
+            "subject": SUBJECT,
+            "body": BODY,
+        }
+    }
+    XML = f'<?xml version="1.0" encoding="UTF-8"?><note><to>{TO}</to><from>{FROM}</from><subject>{SUBJECT}</subject><body>{BODY}</body></note>'
 
 
 def get_data_response_examples():
     """Generates the example responses for the docs while trying to be as dynamic as possible."""
     verbose_example = {
         "selector_item": SelectorItem.Config.schema_extra["example"],
-        "status_code": 200,
-        "status_msg": ["OK", "Request fulfilled, document follows"],
-        "path_data": DocumentExamples._content,
+        "request_error": {
+            "200": [
+            "OK",
+            "Request fulfilled, document follows"
+            ]
+        },
+        "parser_error": {
+            "0": "Success"
+        },
+        "path_data": DocumentExamples.SUBJECT,
         "raw_data": DocumentExamples.HTML,
     }
     data_responses = {
@@ -158,22 +176,22 @@ async def get_data(selector_item: SelectorItem = Depends()):
 @app.get("/examples/html", response_class=HTMLResponse)
 async def return_html_example():
     """Returns a basic HTML response for testing."""
-    return HTMLResponse(content=DocumentExamples.HTML, status_code=200)
+    return HTMLResponse(content=DocumentExamples.HTML)
 
 
-@app.get("/examples/json", response_class=HTMLResponse)
+@app.get("/examples/json", response_class=ORJSONResponse)
 async def return_html_example():
     """Returns a basic JSON response for testing."""
-    return HTMLResponse(content=DocumentExamples.JSON, status_code=200)
+    return DocumentExamples.JSON
 
 
 @app.get("/examples/xml", response_class=HTMLResponse)
 async def return_html_example():
     """Returns a basic JSON response for testing."""
-    return HTMLResponse(content=DocumentExamples.XML, status_code=200)
+    return Response(content=DocumentExamples.XML, media_type="application/xml")
 
 
-@app.get("/user_agents")
+@app.get("/user_agents", response_class=ORJSONResponse)
 async def get_user_agents_list():
     """Returns a list of possible User-Agent examples that can be used. Useful for populating a UI that relies on this API."""
     return user_agents
