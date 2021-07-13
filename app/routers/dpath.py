@@ -12,7 +12,7 @@ from ..util import (
     JSON,
     XML,
     default_user_agent,
-    SelectorRetriever,
+    BaseDocumentParser,
     get_data_response_examples,
 )
 from ..dependencies import ReturnStyles, RequestError, ParserError
@@ -47,7 +47,7 @@ class DpathSelector(BaseModel):
         }
 
 
-class DpathRetriever(SelectorRetriever):
+class DpathRetriever(BaseDocumentParser):
     def _get_path_data(self):
         """Gets the path content based on the type of path that was requested"""
         data = None

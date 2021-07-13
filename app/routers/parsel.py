@@ -10,7 +10,7 @@ from ..util import (
     CSS,
     REGEX,
     default_user_agent,
-    SelectorRetriever,
+    BaseDocumentParser,
     get_data_response_examples,
 )
 from ..dependencies import ReturnStyles, RequestError, ParserError
@@ -46,7 +46,7 @@ class ParselSelector(BaseModel):
         }
 
 
-class ParselRetriever(SelectorRetriever):
+class ParselRetriever(BaseDocumentParser):
     def _get_path_data(self):
         """Gets the path content based on the type of path that was requested"""
         data = None

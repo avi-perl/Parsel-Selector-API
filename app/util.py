@@ -1,5 +1,6 @@
 import json
 import asyncio
+from abc import ABCMeta, abstractmethod
 
 import dpath.util
 import httpx
@@ -120,7 +121,12 @@ def get_data_response_examples(verbose_example):
     return data_responses
 
 
-class SelectorRetriever:
+class BaseDocumentParser:
+    """Do the work of parsing data from an online document using various parsing library's."""
+
+    __metaclass__ = ABCMeta
+
+    # Defines the string versions of the various "types" that can be parsed.
     XPATH = "XPATH"
     CSS = "CSS"
     REGEX = "REGEX"
@@ -140,7 +146,7 @@ class SelectorRetriever:
         url,
         path,
         path_type,
-        user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
+        user_agent=default_user_agent,
     ):
         self.__url = url
         self.path = path
@@ -190,45 +196,10 @@ class SelectorRetriever:
         """Returns information about the response code from the request"""
         return http_response_codes.get(self.status_code)
 
+    @abstractmethod
     def _get_path_data(self):
-        """Gets the path content based on the type of path that was requested"""
-        data = None
-        try:
-            selector = Selector(text=self.raw_data)
-            if self.path_type == self.XPATH:
-                data = selector.xpath(self.path).get()
-            elif self.path_type == self.CSS:
-                data = selector.css(self.path).get()
-            elif self.path_type == self.REGEX:
-                data = selector.re(self.path)
-            elif self.path_type == self.JSON:
-                json_dict = json.loads(
-                    self.raw_data
-                )  # Convert JSON to python dictionary
-                data = dpath.util.get(
-                    json_dict, self.path
-                )  # Get the content of the dictionary based on the path provided
-            elif self.path_type == self.XML:
-                # Convert the xml into a valid python dictionary so we can parse it the same way we parse JSON
-                print(self.raw_data)
-                try:
-                    xml_dict = xmltodict.parse(self.raw_data)
-                except Exception:
-                    self.error_code = 3
-                    self.error_msg = (
-                        "Error parsing XML data. Are you sure the data is valid XML?"
-                    )
-                    return data
-                data = dpath.util.get(xml_dict, self.path)
-        except KeyError:
-            self.error_code = 1
-            self.error_msg = f"Path error, please enter a valid Path value for the type '{self.path_type}'"
-        except Exception as e:
-            self.error_code = 2
-            self.error_msg = (
-                f"There was an error with your Path and Path Type combo: {e}"
-            )
-        return data.strip() if type(data) == str else data
+        """Does the work of parsing the data from the document and returns the data."""
+        pass
 
     @classmethod
     def from_selector_item(cls, selector_item):
@@ -238,45 +209,3 @@ class SelectorRetriever:
             path_type=selector_item.path_type,
             user_agent=selector_item.user_agent,
         )
-
-
-class ParselRetriever(SelectorRetriever):
-    def _get_path_data(self):
-        """Gets the path content based on the type of path that was requested"""
-        data = None
-        try:
-            selector = Selector(text=self.raw_data)
-            if self.path_type == self.XPATH:
-                data = selector.xpath(self.path).get()
-            elif self.path_type == self.CSS:
-                data = selector.css(self.path).get()
-            elif self.path_type == self.REGEX:
-                data = selector.re(self.path)
-            elif self.path_type == self.JSON:
-                json_dict = json.loads(
-                    self.raw_data
-                )  # Convert JSON to python dictionary
-                data = dpath.util.get(
-                    json_dict, self.path
-                )  # Get the content of the dictionary based on the path provided
-            elif self.path_type == self.XML:
-                # Convert the xml into a valid python dictionary so we can parse it the same way we parse JSON
-                print(self.raw_data)
-                try:
-                    xml_dict = xmltodict.parse(self.raw_data)
-                except Exception:
-                    self.error_code = 3
-                    self.error_msg = (
-                        "Error parsing XML data. Are you sure the data is valid XML?"
-                    )
-                    return data
-                data = dpath.util.get(xml_dict, self.path)
-        except KeyError:
-            self.error_code = 1
-            self.error_msg = f"Path error, please enter a valid Path value for the type '{self.path_type}'"
-        except Exception as e:
-            self.error_code = 2
-            self.error_msg = (
-                f"There was an error with your Path and Path Type combo: {e}"
-            )
-        return data.strip() if type(data) == str else data
