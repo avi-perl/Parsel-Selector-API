@@ -119,6 +119,24 @@ verbose_example = {
 
 @router.get("/dpath", responses=get_data_response_examples(verbose_example))
 async def parse_data_with_dpath_paths(selector_item: DpathSelector = Depends()):
+    """# Dpath
+
+    Test some basic functionality offered by the [Dpath library](https://pypi.org/project/dpath/):
+
+    > A python library for accessing and searching dictionaries via /slashed/paths ala xpath.
+    >
+    > Basically it lets you glob over a dictionary as if it were a filesystem.
+    > It allows you to specify globs (ala the bash eglob syntax, through some advanced fnmatch.fnmatch magic) to access dictionary elements, and provides some facility for filtering those results.
+
+    ---
+    ### JSON
+    With the JSON type, we can use the basic Dpath functionality to get data from a JSON file.
+
+    ### XML
+    The XML type converts an XML document with the [xmltodict](https://pypi.org/project/xmltodict/) library:
+
+    > `xmltodict` is a Python module that makes working with XML feel like you are working with [JSON](http://docs.python.org/library/json.html), as in this ["spec"](http://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html)
+    """
     retriever = DpathRetriever.from_selector_item(selector_item)
     await retriever.run()
     data = SelectorData.from_retriever(
