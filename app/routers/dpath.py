@@ -7,8 +7,16 @@ from fastapi.responses import HTMLResponse
 import dpath.util
 import xmltodict
 
-from ..util import get_data_response_examples, JSON, XML, default_user_agent, SelectorRetriever
-from ..dependencies import ReturnStyles
+from ..util import (
+    get_data_response_examples,
+    JSON,
+    XML,
+    default_user_agent,
+    SelectorRetriever,
+    get_data_response_examples,
+)
+from ..dependencies import ReturnStyles, RequestError, ParserError
+from .examples import DocumentExamples
 
 router = APIRouter()
 
@@ -18,7 +26,7 @@ class DpathPathTypes(str, Enum):
 
     JSON = JSON
     XML = XML
- 
+
 
 class DpathSelector(BaseModel):
     url: AnyUrl
@@ -74,11 +82,46 @@ class DpathRetriever(SelectorRetriever):
         return data.strip() if type(data) == str else data
 
 
-@router.get("/dpath")  # , responses=get_data_response_examples())
+class SelectorData(BaseModel):
+    selector_item: DpathSelector
+    request_error: RequestError
+    parser_error: ParserError
+    path_data: str = None
+    raw_data: str = None
+
+    @classmethod
+    def from_retriever(
+        cls,
+        selector_item: DpathSelector,
+        retriever: DpathRetriever,
+    ):
+        return cls(
+            selector_item=selector_item,
+            request_error=RequestError(
+                code=retriever.status_code, msg=retriever.status_msg
+            ),
+            parser_error=ParserError(
+                code=retriever.error_code, msg=retriever.error_msg
+            ),
+            path_data=retriever.path_data,
+            raw_data=retriever.raw_data,
+        )
+
+
+verbose_example = {
+    "selector_item": DpathSelector.Config.schema_extra["example"],
+    "request_error": {"200": ["OK", "Request fulfilled, document follows"]},
+    "parser_error": {"0": "Success"},
+    "path_data": DocumentExamples.SUBJECT,
+    "raw_data": DocumentExamples.JSON,
+}
+
+
+@router.get("/dpath", responses=get_data_response_examples(verbose_example))
 async def parse_data_with_dpath_paths(selector_item: DpathSelector = Depends()):
     retriever = DpathRetriever.from_selector_item(selector_item)
     await retriever.run()
-    data = DpathRetriever.from_retriever(
+    data = SelectorData.from_retriever(
         selector_item=selector_item,
         retriever=retriever,
     )
