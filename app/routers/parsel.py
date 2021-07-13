@@ -5,8 +5,16 @@ from fastapi import APIRouter, Depends
 from parsel import Selector
 from fastapi.responses import HTMLResponse
 
-from ..util import XPATH, CSS, REGEX, default_user_agent, SelectorRetriever
-from ..dependencies import ReturnStyles
+from ..util import (
+    XPATH,
+    CSS,
+    REGEX,
+    default_user_agent,
+    SelectorRetriever,
+    get_data_response_examples,
+)
+from ..dependencies import ReturnStyles, RequestError, ParserError
+from .examples import DocumentExamples
 
 router = APIRouter()
 
@@ -50,25 +58,6 @@ class ParselRetriever(SelectorRetriever):
                 data = selector.css(self.path).get()
             elif self.path_type == self.REGEX:
                 data = selector.re(self.path)
-            elif self.path_type == self.JSON:
-                json_dict = json.loads(
-                    self.raw_data
-                )  # Convert JSON to python dictionary
-                data = dpath.util.get(
-                    json_dict, self.path
-                )  # Get the content of the dictionary based on the path provided
-            elif self.path_type == self.XML:
-                # Convert the xml into a valid python dictionary so we can parse it the same way we parse JSON
-                print(self.raw_data)
-                try:
-                    xml_dict = xmltodict.parse(self.raw_data)
-                except Exception:
-                    self.error_code = 3
-                    self.error_msg = (
-                        "Error parsing XML data. Are you sure the data is valid XML?"
-                    )
-                    return data
-                data = dpath.util.get(xml_dict, self.path)
         except KeyError:
             self.error_code = 1
             self.error_msg = f"Path error, please enter a valid Path value for the type '{self.path_type}'"
@@ -80,11 +69,46 @@ class ParselRetriever(SelectorRetriever):
         return data.strip() if type(data) == str else data
 
 
-@router.get("/parsel")  # , responses=get_data_response_examples())
+class SelectorData(BaseModel):
+    selector_item: ParselSelector
+    request_error: RequestError
+    parser_error: ParserError
+    path_data: str = None
+    raw_data: str = None
+
+    @classmethod
+    def from_retriever(
+        cls,
+        selector_item: ParselSelector,
+        retriever: ParselRetriever,
+    ):
+        return cls(
+            selector_item=selector_item,
+            request_error=RequestError(
+                code=retriever.status_code, msg=retriever.status_msg
+            ),
+            parser_error=ParserError(
+                code=retriever.error_code, msg=retriever.error_msg
+            ),
+            path_data=retriever.path_data,
+            raw_data=retriever.raw_data,
+        )
+
+
+verbose_example = {
+    "selector_item": ParselSelector.Config.schema_extra["example"],
+    "request_error": {"200": ["OK", "Request fulfilled, document follows"]},
+    "parser_error": {"0": "Success"},
+    "path_data": DocumentExamples.SUBJECT,
+    "raw_data": DocumentExamples.HTML,
+}
+
+
+@router.get("/parsel", responses=get_data_response_examples(verbose_example))
 async def parse_data_with_parsel_selectors(selector_item: ParselSelector = Depends()):
     retriever = ParselRetriever.from_selector_item(selector_item)
     await retriever.run()
-    data = ParselRetriever.from_retriever(
+    data = SelectorData.from_retriever(
         selector_item=selector_item,
         retriever=retriever,
     )

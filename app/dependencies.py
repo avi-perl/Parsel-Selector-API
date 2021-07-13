@@ -1,4 +1,5 @@
 from enum import Enum
+from pydantic import BaseModel
 
 
 class ReturnStyles(str, Enum):
@@ -27,3 +28,13 @@ class ReturnStyles(str, Enum):
                 else:
                     del sector_data.__dict__[key]
         return sector_data
+
+
+class RequestError(BaseModel):
+    code: int
+    msg: list
+
+
+class ParserError(BaseModel):
+    code: int
+    msg: str

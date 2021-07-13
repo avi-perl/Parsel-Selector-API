@@ -6,6 +6,8 @@ import httpx
 import xmltodict
 from parsel import Selector
 
+from .routers.examples import DocumentExamples
+
 XPATH = "XPATH"
 CSS = "CSS"
 REGEX = "REGEX"
@@ -80,17 +82,18 @@ user_agents = [
 default_user_agent = user_agents[0]
 
 
-def get_data_response_examples():
+def get_data_response_examples(verbose_example):
     """Generates the example responses for the docs while trying to be as dynamic as possible."""
-    from .main import SelectorItem, ReturnStyles
+    from .routers.parsel import ParselSelector
+    from .dependencies import ReturnStyles
 
-    verbose_example = {
-        "selector_item": SelectorItem.Config.schema_extra["example"],
-        "request_error": {"200": ["OK", "Request fulfilled, document follows"]},
-        "parser_error": {"0": "Success"},
-        "path_data": DocumentExamples.SUBJECT,
-        "raw_data": DocumentExamples.HTML,
-    }
+    # verbose_example = {
+    #     "selector_item": ParselSelector.Config.schema_extra["example"],
+    #     "request_error": {"200": ["OK", "Request fulfilled, document follows"]},
+    #     "parser_error": {"0": "Success"},
+    #     "path_data": DocumentExamples.SUBJECT,
+    #     "raw_data": DocumentExamples.HTML,
+    # }
     data_responses = {
         200: {
             "description": "Success",
