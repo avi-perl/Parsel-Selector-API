@@ -1,10 +1,13 @@
 from enum import Enum
 
+from parsel import Selector
 from pydantic import BaseModel, AnyUrl
 from fastapi import APIRouter, Depends
-from parsel import Selector
 from fastapi.responses import HTMLResponse
 
+from .. import config
+from .examples import DocumentExamples
+from ..dependencies import ReturnStyles, BaseResponse
 from ..util import (
     XPATH,
     CSS,
@@ -13,21 +16,21 @@ from ..util import (
     BaseDocumentParser,
     get_data_response_examples,
 )
-from ..dependencies import ReturnStyles, RequestError, ParserError
-from .examples import DocumentExamples
 
 router = APIRouter()
 
 
 class ParselPathTypes(str, Enum):
-    """Valid options for a ParselSelector path."""
+    """Valid path_type options for a ParselRequest path."""
 
     XPATH = XPATH
     CSS = CSS
     REGEX = REGEX
 
 
-class ParselSelector(BaseModel):
+class ParselRequest(BaseModel):
+    """Model reporesenting the request a user can send."""
+
     url: AnyUrl
     path: str
     path_type: ParselPathTypes = ParselPathTypes.XPATH
@@ -37,16 +40,18 @@ class ParselSelector(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "url": "http://parsel.aviperl.me/examples/html",
+                "url": f"{config.settings.site_url}/examples/html",
                 "path": "/html/body/h1/text()",
-                "path_type": "XPATH",
+                "path_type": XPATH,
                 "user_agent": default_user_agent,
-                "return_style": "BASIC",
+                "return_style": ReturnStyles.BASIC,
             }
         }
 
 
-class ParselRetriever(BaseDocumentParser):
+class ParselDocumentParser(BaseDocumentParser):
+    """Parsing logic to extract data from a document using Parsel Selector"""
+
     def _get_path_data(self):
         """Gets the path content based on the type of path that was requested"""
         data = None
@@ -69,34 +74,15 @@ class ParselRetriever(BaseDocumentParser):
         return data.strip() if type(data) == str else data
 
 
-class SelectorData(BaseModel):
-    selector_item: ParselSelector
-    request_error: RequestError
-    parser_error: ParserError
-    path_data: str = None
-    raw_data: str = None
+class ParselResponse(BaseResponse):
+    """Response object returning data to the client"""
 
-    @classmethod
-    def from_retriever(
-        cls,
-        selector_item: ParselSelector,
-        retriever: ParselRetriever,
-    ):
-        return cls(
-            selector_item=selector_item,
-            request_error=RequestError(
-                code=retriever.status_code, msg=retriever.status_msg
-            ),
-            parser_error=ParserError(
-                code=retriever.error_code, msg=retriever.error_msg
-            ),
-            path_data=retriever.path_data,
-            raw_data=retriever.raw_data,
-        )
+    request_item: ParselRequest
 
 
-verbose_example = {
-    "selector_item": ParselSelector.Config.schema_extra["example"],
+# Example data to process and show as examples of the output that can be returned to the client.
+parsel_verbose_example = {
+    "request_item": ParselRequest.Config.schema_extra["example"],
     "request_error": {"200": ["OK", "Request fulfilled, document follows"]},
     "parser_error": {"0": "Success"},
     "path_data": DocumentExamples.SUBJECT,
@@ -104,18 +90,41 @@ verbose_example = {
 }
 
 
-@router.get("/parsel", responses=get_data_response_examples(verbose_example))
-async def parse_data_with_parsel_selectors(selector_item: ParselSelector = Depends()):
-    retriever = ParselRetriever.from_selector_item(selector_item)
-    await retriever.run()
-    data = SelectorData.from_retriever(
-        selector_item=selector_item,
-        retriever=retriever,
+@router.get("/parsel", responses=get_data_response_examples(parsel_verbose_example))
+async def parse_data_with_parsel_selectors(request_item: ParselRequest = Depends()):
+    """# Parsel
+
+    Test some basic functionality offered by the [Parsel library](https://parsel.readthedocs.io/en/latest/usage.html):
+
+    > Parsel is a BSD-licensed Python library to extract and remove data from HTML and XML using XPath and CSS selectors, optionally combined with regular expressions.
+    >
+    > Find the Parsel online documentation at [https://parsel.readthedocs.org](https://parsel.readthedocs.org).
+
+    ---
+    ### XPATH
+    With the XPATH type, we can use the basic Parsel `Selector.xpath("/some/path").get()` functionality to get data from an HTML file.
+
+    ### CSS
+    With the CSS type, we can use the basic Parsel `Selector.css("/some/path").get()` functionality to get data from an HTML file.
+
+    ### REGEX
+    With the CSS type, we can use the basic Parsel `Selector.re("some pattern.*")` functionality to get data from an HTML file.
+    """
+
+    # Create a parser object from the request input
+    parser = ParselDocumentParser.from_request_item(request_item)
+    await parser.run()
+
+    # Create the return object from the retrevied data
+    data = ParselResponse.from_parser(
+        request_item=request_item,
+        parser=parser,
     )
 
-    if selector_item.return_style == ReturnStyles.BASIC:
-        return ReturnStyles.make_basic(data)
-    elif selector_item.return_style == ReturnStyles.DATA_ONLY:
+    # Mutate the return object based on the requested return_style
+    if request_item.return_style == ReturnStyles.BASIC:
+        return data.as_basic()
+    elif request_item.return_style == ReturnStyles.DATA_ONLY:
         return HTMLResponse(data.path_data)
     else:
         return data

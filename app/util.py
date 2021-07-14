@@ -1,10 +1,7 @@
 import json
 import asyncio
 
-import dpath.util
 import httpx
-import xmltodict
-from parsel import Selector
 
 from .routers.examples import DocumentExamples
 
@@ -84,7 +81,7 @@ default_user_agent = user_agents[0]
 
 def get_data_response_examples(verbose_example):
     """Generates the example responses for the docs while trying to be as dynamic as possible."""
-    from .routers.parsel import ParselSelector
+    from .routers.parsel import ParselRequest
     from .dependencies import ReturnStyles
 
     data_responses = {

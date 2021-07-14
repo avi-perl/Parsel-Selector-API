@@ -1,12 +1,15 @@
-from enum import Enum
 import json
+from enum import Enum
 
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel, AnyUrl
-from fastapi.responses import HTMLResponse
-import dpath.util
 import xmltodict
+import dpath.util
+from pydantic import BaseModel, AnyUrl
+from fastapi import APIRouter, Depends
+from fastapi.responses import HTMLResponse
 
+from .. import config
+from .examples import DocumentExamples
+from ..dependencies import ReturnStyles, BaseResponse
 from ..util import (
     get_data_response_examples,
     JSON,
@@ -15,8 +18,6 @@ from ..util import (
     BaseDocumentParser,
     get_data_response_examples,
 )
-from ..dependencies import ReturnStyles, BaseResponse
-from .examples import DocumentExamples
 
 router = APIRouter()
 
@@ -40,11 +41,11 @@ class DpathRequest(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "url": "http://localhost/examples/json",
+                "url": f"{config.settings.site_url}/examples/json",
                 "path": "/note/subject",
-                "path_type": "JSON",
+                "path_type": JSON,
                 "user_agent": default_user_agent,
-                "return_style": "BASIC",
+                "return_style": ReturnStyles.BASIC,
             }
         }
 
@@ -122,7 +123,7 @@ async def parse_data_with_dpath_paths(request_item: DpathRequest = Depends()):
     > `xmltodict` is a Python module that makes working with XML feel like you are working with [JSON](http://docs.python.org/library/json.html), as in this ["spec"](http://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html)
     """
 
-    # Create a parser object from the selector input
+    # Create a parser object from the request input
     parser = DpathDocumentParser.from_request_item(request_item)
     await parser.run()
 
