@@ -1,6 +1,6 @@
 import requests
 
-base_url = "https://parsel-selector-api.herokuapp.com"
+base_url = "https://parsel-selector-api.herokuapp.com/dpath"
 
 params = {
     "url": f"{base_url}/examples/json",
