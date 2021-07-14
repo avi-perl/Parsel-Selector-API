@@ -9,11 +9,9 @@ An API for selecting part of a document on the web based on a path to the conten
 ---
 ## Quick Examples
 Select these links for cool information about the world, powered by this API:
-- [The number of humans currently in space](https://parsel-selector-api.herokuapp.com/?url=https%3A%2F%2Fwww.howmanypeopleareinspacerightnow.com%2Fpeopleinspace.json&path=%2Fnumber&path_type=JSON&return_style=DATA_ONLY&user_agent=Mozilla%2F5.0%20%28Macintosh%3B%20Intel%20Mac%20OS%20X%2010_10_1%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F39.0.2171.95%20Safari%2F537.36)
-- [Title of the current top post on all of Reddit](https://parsel-selector-api.herokuapp.com/?url=https%3A%2F%2Fold.reddit.com%2Fr%2Fall%2F&path=%2Fhtml%2Fbody%2Fdiv%5B4%5D%2Fdiv%2Fdiv%5B1%5D%2Fdiv%5B2%5D%2Fdiv%5B1%5D%2Fp%5B1%5D%2Fa%2Ftext%28%29&path_type=XPATH&return_style=DATA_ONLY&user_agent=Mozilla%2F5.0%20%28Macintosh%3B%20Intel%20Mac%20OS%20X%2010_10_1%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F39.0.2171.95%20Safari%2F537.36)
-- [Cover of Amazon's best selling book](https://parsel-selector-api.herokuapp.com/?url=https%3A%2F%2Fwww.amazon.com%2Fgp%2Fbestsellers%2Fbooks&path=%2F%2F%2A%5B%40id%3D%22zg-ordered-list%22%5D%2Fli%5B1%5D%2Fspan%2Fdiv%2Fspan%2Fa%2Fspan%2Fdiv%2Fimg&path_type=XPATH&return_style=DATA_ONLY)
-- [Current value of a Bitcoin in USD](https://parsel-selector-api.herokuapp.com/?url=https%3A%2F%2Fapi.coindesk.com%2Fv1%2Fbpi%2Fcurrentprice.json&path=%2Fbpi%2FUSD%2Frate&path_type=JSON&return_style=DATA_ONLY&user_agent=Mozilla%2F5.0%20%28Macintosh%3B%20Intel%20Mac%20OS%20X%2010_10_1%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F39.0.2171.95%20Safari%2F537.36)
-- [Latest version of python](https://parsel-selector-api.herokuapp.com/?url=https%3A%2F%2Fwww.python.org%2Fdownloads%2F&path=%2Fhtml%2Fbody%2Fdiv%2Fdiv%5B3%5D%2Fdiv%2Fsection%2Fdiv%5B2%5D%2Fol%2Fli%5B1%5D%2Fspan%5B1%5D%2Fa%2Ftext%28%29&path_type=XPATH&return_style=DATA_ONLY&user_agent=Mozilla%2F5.0%20%28Macintosh%3B%20Intel%20Mac%20OS%20X%2010_10_1%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F39.0.2171.95%20Safari%2F537.36)
+- [The number of humans currently in space](https://parsel-selector-api.herokuapp.com/dpath?url=https%3A%2F%2Fwww.howmanypeopleareinspacerightnow.com%2Fpeopleinspace.json&path=%2Fnumber&path_type=JSON&return_style=DATA_ONLY&user_agent=Mozilla%2F5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%3B%20rv%3A89.0%29%20Gecko%2F20100101%20Firefox%2F89.0) - [Source Data](https://www.howmanypeopleareinspacerightnow.com/peopleinspace.json)
+- [Title of the current top post on all of Reddit](https://parsel-selector-api.herokuapp.com/parsel?url=https%3A%2F%2Fold.reddit.com%2Fr%2Fall%2F&path=%2Fhtml%2Fbody%2Fdiv%5B4%5D%2Fdiv%2Fdiv%5B1%5D%2Fdiv%5B2%5D%2Fdiv%5B1%5D%2Fp%5B1%5D%2Fa%2Ftext%28%29&path_type=XPATH&return_style=DATA_ONLY&user_agent=Mozilla%2F5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%3B%20rv%3A89.0%29%20Gecko%2F20100101%20Firefox%2F89.0) - [Source Data](https://old.reddit.com/r/all/)
+- [Cover of Amazon's best selling book](https://parsel-selector-api.herokuapp.com/parsel?url=https%3A%2F%2Fwww.amazon.com%2Fgp%2Fbestsellers%2Fbooks&path=%2Fhtml%2Fbody%2Fdiv%5B1%5D%2Fdiv%5B3%5D%2Fdiv%2Fdiv%2Fdiv%5B1%5D%2Fdiv%2Fol%2Fli%5B1%5D%2Fspan%2Fdiv%2Fspan%2Fa%2Fspan%2Fdiv%2Fimg&path_type=XPATH&return_style=DATA_ONLY&user_agent=Mozilla%2F5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%3B%20rv%3A89.0%29%20Gecko%2F20100101%20Firefox%2F89.0) - [Source Data](https://www.amazon.com/gp/bestsellers/books)
 
 **How it works:** Users pass the API a url do a document on the web, and a path to particular content on that page. The page is scraped, and the data requested is returned!
 
@@ -47,7 +45,7 @@ This API serves 2 purposes.
 You can clone this repo for your own hosted version, or you can use the hosted version at https://parsel-selector-api.herokuapp.com/docs
 ```bash
 # Clone repo
-git clone https://github.com/avrohom-perl/Parsel-Selector-API.git
+git clone https://github.com/avi-perl/Parsel-Selector-API.git
 cd Parsel-Selector-API
 
 # Install requirements 
@@ -69,7 +67,7 @@ params = {
     "path_type": "XPATH"
 }
 
-r = requests.get("https://parsel-selector-api.herokuapp.com/", params=params)
+r = requests.get("https://parsel-selector-api.herokuapp.com/parsel", params=params)
 print(r.json())
 ```
 
