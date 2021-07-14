@@ -1,6 +1,5 @@
 import json
 import asyncio
-from abc import ABCMeta, abstractmethod
 
 import dpath.util
 import httpx
@@ -88,13 +87,6 @@ def get_data_response_examples(verbose_example):
     from .routers.parsel import ParselSelector
     from .dependencies import ReturnStyles
 
-    # verbose_example = {
-    #     "selector_item": ParselSelector.Config.schema_extra["example"],
-    #     "request_error": {"200": ["OK", "Request fulfilled, document follows"]},
-    #     "parser_error": {"0": "Success"},
-    #     "path_data": DocumentExamples.SUBJECT,
-    #     "raw_data": DocumentExamples.HTML,
-    # }
     data_responses = {
         200: {
             "description": "Success",
@@ -123,8 +115,6 @@ def get_data_response_examples(verbose_example):
 
 class BaseDocumentParser:
     """Do the work of parsing data from an online document using various parsing library's."""
-
-    __metaclass__ = ABCMeta
 
     # Defines the string versions of the various "types" that can be parsed.
     XPATH = "XPATH"
@@ -196,16 +186,15 @@ class BaseDocumentParser:
         """Returns information about the response code from the request"""
         return http_response_codes.get(self.status_code)
 
-    @abstractmethod
     def _get_path_data(self):
         """Does the work of parsing the data from the document and returns the data."""
-        pass
+        raise NotImplementedError
 
     @classmethod
-    def from_selector_item(cls, selector_item):
+    def from_request_item(cls, request_item):
         return cls(
-            url=selector_item.url,
-            path=selector_item.path,
-            path_type=selector_item.path_type,
-            user_agent=selector_item.user_agent,
+            url=request_item.url,
+            path=request_item.path,
+            path_type=request_item.path_type,
+            user_agent=request_item.user_agent,
         )

@@ -15,20 +15,22 @@ from ..util import (
     BaseDocumentParser,
     get_data_response_examples,
 )
-from ..dependencies import ReturnStyles, RequestError, ParserError
+from ..dependencies import ReturnStyles, BaseResponse
 from .examples import DocumentExamples
 
 router = APIRouter()
 
 
 class DpathPathTypes(str, Enum):
-    """Valid options for a DpathSelector path."""
+    """Valid path_type options for a DpathRequest path."""
 
     JSON = JSON
     XML = XML
 
 
-class DpathSelector(BaseModel):
+class DpathRequest(BaseModel):
+    """Model reporesenting the request a user can send."""
+
     url: AnyUrl
     path: str
     path_type: DpathPathTypes = DpathPathTypes.JSON
@@ -38,7 +40,7 @@ class DpathSelector(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "url": "http://parsel.aviperl.me/examples/json",
+                "url": "http://localhost/examples/json",
                 "path": "/note/subject",
                 "path_type": "JSON",
                 "user_agent": default_user_agent,
@@ -47,7 +49,9 @@ class DpathSelector(BaseModel):
         }
 
 
-class DpathRetriever(BaseDocumentParser):
+class DpathDocumentParser(BaseDocumentParser):
+    """Parsing logic to extract data from a document using Dpath"""
+
     def _get_path_data(self):
         """Gets the path content based on the type of path that was requested"""
         data = None
@@ -61,7 +65,6 @@ class DpathRetriever(BaseDocumentParser):
                 )  # Get the content of the dictionary based on the path provided
             elif self.path_type == self.XML:
                 # Convert the xml into a valid python dictionary so we can parse it the same way we parse JSON
-                print(self.raw_data)
                 try:
                     xml_dict = xmltodict.parse(self.raw_data)
                 except Exception:
@@ -82,34 +85,15 @@ class DpathRetriever(BaseDocumentParser):
         return data.strip() if type(data) == str else data
 
 
-class SelectorData(BaseModel):
-    selector_item: DpathSelector
-    request_error: RequestError
-    parser_error: ParserError
-    path_data: str = None
-    raw_data: str = None
+class DpathResponse(BaseResponse):
+    """Response object returning data to the client"""
 
-    @classmethod
-    def from_retriever(
-        cls,
-        selector_item: DpathSelector,
-        retriever: DpathRetriever,
-    ):
-        return cls(
-            selector_item=selector_item,
-            request_error=RequestError(
-                code=retriever.status_code, msg=retriever.status_msg
-            ),
-            parser_error=ParserError(
-                code=retriever.error_code, msg=retriever.error_msg
-            ),
-            path_data=retriever.path_data,
-            raw_data=retriever.raw_data,
-        )
+    request_item: DpathRequest
 
 
-verbose_example = {
-    "selector_item": DpathSelector.Config.schema_extra["example"],
+# Example data to process and show as examples of the output that can be returned to the client.
+dpath_verbose_example = {
+    "request_item": DpathRequest.Config.schema_extra["example"],
     "request_error": {"200": ["OK", "Request fulfilled, document follows"]},
     "parser_error": {"0": "Success"},
     "path_data": DocumentExamples.SUBJECT,
@@ -117,8 +101,8 @@ verbose_example = {
 }
 
 
-@router.get("/dpath", responses=get_data_response_examples(verbose_example))
-async def parse_data_with_dpath_paths(selector_item: DpathSelector = Depends()):
+@router.get("/dpath", responses=get_data_response_examples(dpath_verbose_example))
+async def parse_data_with_dpath_paths(request_item: DpathRequest = Depends()):
     """# Dpath
 
     Test some basic functionality offered by the [Dpath library](https://pypi.org/project/dpath/):
@@ -137,16 +121,21 @@ async def parse_data_with_dpath_paths(selector_item: DpathSelector = Depends()):
 
     > `xmltodict` is a Python module that makes working with XML feel like you are working with [JSON](http://docs.python.org/library/json.html), as in this ["spec"](http://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html)
     """
-    retriever = DpathRetriever.from_selector_item(selector_item)
-    await retriever.run()
-    data = SelectorData.from_retriever(
-        selector_item=selector_item,
-        retriever=retriever,
+
+    # Create a parser object from the selector input
+    parser = DpathDocumentParser.from_request_item(request_item)
+    await parser.run()
+
+    # Create the return object from the retrevied data
+    data = DpathResponse.from_parser(
+        request_item=request_item,
+        parser=parser,
     )
 
-    if selector_item.return_style == ReturnStyles.BASIC:
-        return ReturnStyles.make_basic(data)
-    elif selector_item.return_style == ReturnStyles.DATA_ONLY:
+    # Mutate the return object based on the requested return_style
+    if request_item.return_style == ReturnStyles.BASIC:
+        return data.as_basic()
+    elif request_item.return_style == ReturnStyles.DATA_ONLY:
         return HTMLResponse(data.path_data)
     else:
         return data
