@@ -1,11 +1,14 @@
 import json
 
-from fastapi.testclient import TestClient
-from parsel import Selector
 import dpath.util
 import xmltodict
+from fastapi.testclient import TestClient
+from parsel import Selector
 
 from .main import app
+from .dependencies import BaseResponse, RequestError, ParserError
+from .routers.dpath import DpathResponse, DpathRequest
+
 
 client = TestClient(app)
 
@@ -61,3 +64,25 @@ def test_example_xml():
     data = response.text
     # Verify that elements needed for further tests and documentation are returned with the path we expect.
     assert dpath.util.get(xmltodict.parse(data), "/note/subject") is not None
+
+
+def test_as_basic():
+    """Verify that the function to format a response in "basic" is functioning"""
+    request = DpathRequest(
+        url="http://localhost/examples/json",
+        path="/note/subject",
+        path_type="JSON",
+        user_agent="some user agent",
+        return_style="BASIC",
+    )
+    response = DpathResponse(
+        request_item=request,
+        request_error=RequestError(code=0, msg=["error", "some error msg"]),
+        parser_error=ParserError(code=0, msg="some error msg"),
+        path_data="some path data",
+        raw_data="some raw data",
+    )
+    basic_format_keys = response.basic_format_keys.sort()
+    basic_format_response_keys = list(response.as_basic()).sort()
+    # Assert that after the response is processed, the keys that are returned are only the keys we specified.
+    assert basic_format_keys == basic_format_response_keys
