@@ -91,6 +91,7 @@ def get_data_response_examples(verbose_example):
                 "application/json": {
                     "examples": {
                         "BASIC": {
+                            # TODO Move this functionality to use BaseResponse.as_basic
                             "summary": "BASIC",
                             "value": ReturnStyles.make_basic(verbose_example.copy()),
                         },
