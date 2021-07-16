@@ -3,8 +3,8 @@
 
 An API for selecting part of a document on the web based on a path to the content.
 
+- Documentation: https://parsel-selector-api.herokuapp.com/redoc
 - Swagger Documentation: https://parsel-selector-api.herokuapp.com/docs
-- ReDoc Documentation: https://parsel-selector-api.herokuapp.com/redoc
 
 ---
 ## Quick Examples
