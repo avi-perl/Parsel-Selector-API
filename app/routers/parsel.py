@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse
 
 from .. import config
 from .examples import DocumentExamples
-from ..dependencies import ReturnStyles, BaseResponse
+from ..dependencies import ReturnStyles, BaseResponse, CacheInfo
 from ..util import (
     XPATH,
     CSS,
@@ -85,6 +85,8 @@ parsel_verbose_example = {
     "request_item": ParselRequest.Config.schema_extra["example"],
     "request_error": {"200": ["OK", "Request fulfilled, document follows"]},
     "parser_error": {"0": "Success"},
+    "used_cache": True,
+    "cache_info": CacheInfo.Config.schema_extra["example"],
     "path_data": DocumentExamples.SUBJECT,
     "raw_data": DocumentExamples.HTML,
 }

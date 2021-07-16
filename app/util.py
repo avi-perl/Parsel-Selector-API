@@ -1,15 +1,24 @@
 import json
 import asyncio
+from datetime import datetime, timedelta
 
 import httpx
+from httpx import Response
+from expiringdict import ExpiringDict
+from pydantic import BaseModel
 
-from .routers.examples import DocumentExamples
+from . import config
 
 XPATH = "XPATH"
 CSS = "CSS"
 REGEX = "REGEX"
 JSON = "JSON"
 XML = "XML"
+
+cache = ExpiringDict(
+    max_len=config.settings.request_cache_max_len,
+    max_age_seconds=config.settings.request_cache_max_age_seconds,
+)
 
 
 http_response_codes = {
@@ -111,6 +120,25 @@ def get_data_response_examples(verbose_example):
     return data_responses
 
 
+class CacheItem(BaseModel):
+    class Config:
+        arbitrary_types_allowed = True
+
+    response: Response
+    created_datetime: datetime = datetime.now()
+    retrieved_count: int = 0
+
+    @property
+    def age(self):
+        return datetime.now() - self.created_datetime
+
+    @property
+    def time_remaining(self):
+        return (
+            timedelta(seconds=config.settings.request_cache_max_age_seconds) - self.age
+        )
+
+
 class BaseDocumentParser:
     """Do the work of parsing data from an online document using various parsing library's."""
 
@@ -128,6 +156,7 @@ class BaseDocumentParser:
     error_code = 0
     error_msg = "Success"
     content_reformatted = False
+    cached_item = None
 
     def __init__(
         self,
@@ -144,9 +173,9 @@ class BaseDocumentParser:
     async def run(self):
         """Makes the get request for the requested data"""
         async with httpx.AsyncClient() as client:
-            make_request = self.request(client)
-            self.request = await asyncio.gather(make_request)
-            self.request = self.request[0]
+            make_request = self._get_response(client)
+            response = await asyncio.gather(make_request)
+            self.request = response[0]
 
             # Extract the data using the path provided
             self.path_data = self.raw_path_data = self._get_path_data()
@@ -156,11 +185,18 @@ class BaseDocumentParser:
                 self.content_reformatted = True
                 self.path_data = json.dumps(self.path_data, indent=2)
 
-    async def request(self, client):
+    async def _get_response(self, client):
+        if self.cache_key in cache.keys():
+            self.cached_item = cache[self.cache_key]
+            self.cached_item.retrieved_count += 1
+            return self.cached_item.response
+
         response = await client.get(
             self.url,
             headers={"User-Agent": self.user_agent},
         )
+
+        cache[self.cache_key] = CacheItem(response=response)
         return response
 
     @property
@@ -168,6 +204,16 @@ class BaseDocumentParser:
         """Sanitized and reformatted url"""
         url = self.__url if self.__url[:4].lower() == "http" else "http://" + self.__url
         return url
+
+    @property
+    def cache_key(self):
+        """Return a key that can be used as the unique cache for this request"""
+        return f"{self.url}-{self.user_agent}"
+
+    @property
+    def cached_response(self):
+        """Returns if this request used a cached response"""
+        return True if self.cached_item else False
 
     @property
     def raw_data(self):
