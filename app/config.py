@@ -2,6 +2,9 @@ from pydantic import BaseSettings, AnyUrl
 
 
 class Settings(BaseSettings):
+    env: str = "dev"
+    sentry_dsn: AnyUrl = None  # Open an account at https://sentry.io/ to be assigned a dsn.
+
     site_url: AnyUrl = (
         "http://localhost"  # Used in examples, set as url for this hosted instance
     )
