@@ -196,7 +196,9 @@ class BaseDocumentParser:
             headers={"User-Agent": self.user_agent},
         )
 
-        cache[self.cache_key] = CacheItem(response=response)
+        if response.status_code == 200:
+            cache[self.cache_key] = CacheItem(response=response)
+            
         return response
 
     @property
