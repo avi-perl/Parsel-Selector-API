@@ -28,7 +28,6 @@ except Exception:
 @app.get("/user_agents", response_class=ORJSONResponse)
 async def get_user_agents_list():
     """Returns a list of possible User-Agent examples that can be used. Useful for populating a UI that relies on this API."""
-    a = 1/0
     return user_agents
 
 
