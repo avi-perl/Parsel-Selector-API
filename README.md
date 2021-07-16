@@ -40,6 +40,7 @@ This API serves 2 purposes.
 - Parse any text content on the internet with a Regex pattern.
 - Test out how the site you're working on reacts to different User-Agents.
 - Built with Fast API which provides Swagger and ReDoc documentation.
+- Caching functionality on unique url/user_agent combos when the requests status_code = 200, suppressing the API from calling an endpoint too frequently. 
 
 ## Installation
 You can clone this repo for your own hosted version, or you can use the hosted version at https://parsel-selector-api.herokuapp.com/docs
@@ -85,7 +86,7 @@ Select the links below for documentation on how to structure your path for each 
 This project has been mostly about learning, your pull requests and comments would be super appreciated! 
 
 ## TODO:
-- [ ] Add request cache so that the same URL is not called frequently.
+- [x] Add request cache so that the same URL is not called frequently.
 - [ ] Add more tests on basic functionality.
 - [ ] Create a front-end as a GUI for this tool.
 - [ ] Add path parsing errors to the response for types other than XML.
