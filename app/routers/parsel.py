@@ -95,6 +95,7 @@ parsel_verbose_example = {
 @router.get(
     "/parsel",
     responses=get_data_response_examples(parsel_verbose_example),
+    response_model=ParselResponse,
     tags=["Parsers"],
 )
 async def parse_data_with_parsel_selectors(request_item: ParselRequest = Depends()):

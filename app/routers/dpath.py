@@ -4,6 +4,7 @@ from enum import Enum
 import xmltodict
 import dpath.util
 from pydantic import BaseModel, AnyUrl
+from typing import Union
 from fastapi import APIRouter, Depends
 from fastapi.responses import HTMLResponse
 
@@ -107,6 +108,7 @@ dpath_verbose_example = {
 @router.get(
     "/dpath",
     responses=get_data_response_examples(dpath_verbose_example),
+    response_model=DpathResponse,
     tags=["Parsers"],
 )
 async def parse_data_with_dpath_paths(request_item: DpathRequest = Depends()):
