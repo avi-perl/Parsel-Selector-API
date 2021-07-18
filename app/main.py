@@ -13,11 +13,27 @@ sentry_sdk.init(
     environment=config.settings.env,
 )
 
+tags_metadata = [
+    {
+        "name": "Parsers",
+        "description": "Document parser endpoints, each representing a python library.",
+    },
+    {
+        "name": "Example Documents",
+        "description": "Sample documents of different types for practice and testing.",
+    },
+    {
+        "name": "Extras",
+        "description": "Various extra endpoints.",
+    },
+]
+
 app = FastAPI(
     debug=config.settings.debug,
     description=config.settings.app_description,
     title=config.settings.app_title,
     version="0.1.0",
+    openapi_tags=tags_metadata,
     redoc_url=config.settings.redoc_url,
     docs_url=config.settings.docs_url,
 )
@@ -34,13 +50,13 @@ except Exception:
     )
 
 
-@app.get("/user_agents", response_class=ORJSONResponse)
+@app.get("/user_agents", response_class=ORJSONResponse, tags=["Extras"])
 async def get_user_agents_list():
     """Returns a list of possible User-Agent examples that can be used. Useful for populating a UI that relies on this API."""
     return user_agents
 
 
-@app.get("/wake")
+@app.get("/wake", tags=["Extras"])
 async def get_user_agents():
     """An endpoint to wake the API up when the server is asleep on services like Heroku."""
     return True

@@ -24,13 +24,13 @@ class DocumentExamples:
     XML = f'<?xml version="1.0" encoding="UTF-8"?><note><to>{TO}</to><from>{FROM}</from><subject>{SUBJECT}</subject><body>{BODY}</body></note>'
 
 
-@router.get("/examples/html", response_class=HTMLResponse)
+@router.get("/examples/html", response_class=HTMLResponse, tags=["Example Documents"])
 async def return_html_example():
     """
     # HTML Example
-    
+
     Returns a basic HTML document that may be used for testing.
-    
+
     ### Example Paths
     - **XPATH:** `/html/body/div/span[3]/text()`
     - **CSS:** `body > div > span:nth-child(5) > strong`
@@ -39,26 +39,26 @@ async def return_html_example():
     return HTMLResponse(content=DocumentExamples.HTML)
 
 
-@router.get("/examples/json", response_class=ORJSONResponse)
+@router.get("/examples/json", response_class=ORJSONResponse, tags=["Example Documents"])
 async def return_html_example():
     """
     # JSON Example
-    
+
     Returns a basic JSON document that may be used for testing.
-    
+
     ### Example Paths
     - **JSON:** `/note/subject`
     """
     return DocumentExamples.JSON
 
 
-@router.get("/examples/xml", response_class=HTMLResponse)
+@router.get("/examples/xml", response_class=HTMLResponse, tags=["Example Documents"])
 async def return_html_example():
     """
     # XML Example
-    
+
     Returns a basic XML document that may be used for testing.
-    
+
     ### Example Paths
     - **XML:** `/note/subject`
     """

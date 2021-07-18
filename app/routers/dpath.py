@@ -104,7 +104,11 @@ dpath_verbose_example = {
 }
 
 
-@router.get("/dpath", responses=get_data_response_examples(dpath_verbose_example))
+@router.get(
+    "/dpath",
+    responses=get_data_response_examples(dpath_verbose_example),
+    tags=["Parsers"],
+)
 async def parse_data_with_dpath_paths(request_item: DpathRequest = Depends()):
     """# Dpath
 
